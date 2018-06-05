@@ -38,6 +38,7 @@ import Data.Data
 import Data.DList             (DList)
 import Data.Foldable          (foldMap, foldl')
 import Data.Monoid
+import Data.Semigroup
 import Data.String
 import Data.Text              (Text)
 import Data.Text.Lazy.Builder (Builder)
@@ -308,13 +309,15 @@ data Request = Request
     , _rqBody    :: ![Body]
     }
 
-instance Monoid Request where
-    mempty      = Request mempty mempty mempty mempty
-    mappend a b = Request
+instance Semigroup Request where
+    a <> b = Request
         (_rqPath    a <> "/" <> _rqPath b)
         (_rqQuery   a <> _rqQuery b)
         (_rqHeaders a <> _rqHeaders b)
         (_rqBody    b <> _rqBody a)
+
+instance Monoid Request where
+    mempty      = Request mempty mempty mempty mempty
 
 appendPath :: Request -> Builder -> Request
 appendPath rq x = rq { _rqPath = _rqPath rq <> "/" <> x }
